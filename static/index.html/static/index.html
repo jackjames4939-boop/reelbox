@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reelbox – Save Instagram videos as MP4</title>
+<meta name="description" content="Paste an Instagram video or Reel link and save it as an MP4 file.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #EEF0FF;
+    --paper: #FFFFFF;
+    --ink: #1B1B3A;
+    --muted: #4B4B6B;
+    --violet: #5B3DF5;
+    --tangerine: #FF7A3D;
+    --error: #B3261E;
+    --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+
+  a { color: var(--violet); }
+
+  :focus-visible {
+    outline: 3px solid var(--tangerine);
+    outline-offset: 3px;
+  }
+
+  .wrap {
+    width: min(1040px, 100% - 40px);
+    margin-inline: auto;
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 0;
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .top nav { display: flex; gap: 22px; }
+  .top nav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .top nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  .hero { padding: clamp(28px, 7vw, 84px) 0 clamp(40px, 8vw, 96px); }
+  .hero h1 {
+    margin: 0 0 18px;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(2.6rem, 9vw, 5.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  .hero h1 span { display: block; }
+  .lede {
+    margin: 0 0 34px;
+    max-width: 46ch;
+    color: var(--muted);
+    font-size: 1.15rem;
+  }
+
+  .slot {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .slot input {
+    width: 100%;
+    height: 64px;
+    padding: 0 18px;
+    border: 3px solid var(--ink);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: 1.05rem;
+    box-shadow: 6px 6px 0 var(--violet);
+  }
+  .slot input::placeholder { color: #75759A; }
+  .slot button {
+    height: 64px;
+    padding: 0 30px;
+    border: 3px solid var(--ink);
+    border-radius: 0;
+    background: var(--ink);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+  }
+  .slot button:hover:not(:disabled) { background: var(--violet); border-color: var(--violet); }
+  .slot button:disabled { opacity: 0.7; cursor: progress; }
+
+  @media (min-width: 680px) {
+    .slot { grid-template-columns: 1fr auto; gap: 18px; }
+  }
+
+  .status {
+    min-height: 3.2em;
+    margin: 22px 0 0;
+    font-weight: 500;
+  }
+  .status.error { color: var(--error); }
+  .status a { font-weight: 600; }
+
+  .rights {
+    margin: 6px 0 0;
+    max-width: 60ch;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  .section { padding: clamp(36px, 6vw, 72px) 0; border-top: 3px solid var(--ink); }
+  .section h2 {
+    margin: 0 0 28px;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+    letter-spacing: -0.02em;
+  }
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 28px;
+    counter-reset: step;
+  }
+  .steps li { counter-increment: step; }
+  .steps li::before {
+    content: counter(step);
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--display);
+    font-weight: 800;
+  }
+  .steps h3 { margin: 0 0 6px; font-size: 1.2rem; }
+  .steps p { margin: 0; color: var(--muted); max-width: 34ch; }
+
+  @media (min-width: 760px) {
+    .steps { grid-template-columns: repeat(3, 1fr); gap: 36px; }
+  }
+
+  .faq details { border-bottom: 2px solid rgba(27, 27, 58, 0.25); }
+  .faq summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+";
+    font-family: var(--display);
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+  }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { margin: 0 0 18px; max-width: 62ch; color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq summary::after { transition: none; }
+  }
+
+  footer {
+    padding: 28px 0 44px;
+    border-top: 3px solid var(--ink);
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  footer p { margin: 0; max-width: 70ch; }
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="/">Reelbox</a>
+  <nav aria-label="Main">
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <h1><span>Paste a link.</span><span>Get the video.</span></h1>
+    <p class="lede">Save an Instagram video or Reel to your phone or computer as an MP4 file.</p>
+
+    <form id="form" class="slot" novalidate>
+      <label for="url" style="position:absolute;left:-9999px">Instagram video link</label>
+      <input id="url" name="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.instagram.com/reel/…" required>
+      <button id="go" type="submit">Download video</button>
+    </form>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p class="rights">Only download videos you own or have permission to use. Private accounts can't be downloaded.</p>
+  </section>
+
+  <section class="section" id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>
+          <h3>Copy the link</h3>
+          <p>In Instagram, open the video, tap Share, then tap Copy link.</p>
+        </li>
+        <li>
+          <h3>Paste it above</h3>
+          <p>Put the link in the box at the top of this page.</p>
+        </li>
+        <li>
+          <h3>Save the video</h3>
+          <p>Tap Download video. The MP4 saves to your device.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section faq" id="faq">
+    <div class="wrap">
+      <h2>Questions</h2>
+      <details>
+        <summary>Which links work?</summary>
+        <p>Links to public Instagram Reels and video posts, such as instagram.com/reel/… or instagram.com/p/…</p>
+      </details>
+      <details>
+        <summary>My download failed. What can I do?</summary>
+        <p>Check that the account is public and the link is complete. If it still fails, wait a minute and try again. Instagram sometimes blocks requests for a short time.</p>
+      </details>
+      <details>
+        <summary>Can I download from a private account?</summary>
+        <p>No. Only public videos can be downloaded.</p>
+      </details>
+      <details>
+        <summary>Is it okay to reuse a video I downloaded?</summary>
+        <p>Videos belong to their creators. Download and reuse only videos you made or have permission to use.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Reelbox is not affiliated with or endorsed by Instagram or Meta.</p>
+  </div>
+</footer>
+
+<script>
+  const form = document.getElementById('form');
+  const input = document.getElementById('url');
+  const button = document.getElementById('go');
+  const statusEl = document.getElementById('status');
+  let lastObjectUrl = null;
+
+  function setStatus(message, type, linkEl) {
+    statusEl.textContent = message;
+    statusEl.className = 'status' + (type === 'error' ? ' error' : '');
+    if (linkEl) {
+      statusEl.append(' ', linkEl);
+    }
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const url = input.value.trim();
+
+    if (!/^https?:\/\/(www\.)?instagram\.com\//i.test(url)) {
+      setStatus('Paste a full Instagram link that starts with https://www.instagram.com/', 'error');
+      input.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Fetching video…';
+    setStatus('Fetching your video. This can take up to a minute.');
+
+    try {
+      const res = await fetch('/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      if (!res.ok) {
+        let message = 'Something went wrong. Try again in a moment.';
+        try {
+          const data = await res.json();
+          if (data && data.error) message = data.error;
+        } catch (_) { /* keep default message */ }
+        throw new Error(message);
+      }
+
+      const blob = await res.blob();
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = lastObjectUrl;
+      link.download = 'reelbox-video.mp4';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      const again = document.createElement('a');
+      again.href = lastObjectUrl;
+      again.download = 'reelbox-video.mp4';
+      again.textContent = 'Save video again';
+      setStatus('Your video is ready and the download has started.', 'ok', again);
+    } catch (err) {
+      setStatus(err.message, 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Download video';
+    }
+  });
+</script>
+</body>
+  </html>
